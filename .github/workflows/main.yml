@@ -48,7 +48,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest tests/test.py
+        pytest -v -maxfail=2 tests/test.py
     
     # - name: Test with pytest
     #   run: |
