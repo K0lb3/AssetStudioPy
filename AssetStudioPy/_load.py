@@ -1,3 +1,4 @@
+from typing import List
 import os
 import sys
 
@@ -55,6 +56,22 @@ def load_assetstudio():
 
     # 5. all good, we can set the loaded flag
     ASSETSTUDIO_LOADED = True
+
+
+RuntimeMethodInfo = None
+def get_class_method(clz, method_name: str) -> List[RuntimeMethodInfo]:
+    """Extracts a method from a class to make it callable public via .Invoke(instance, *args)
+    returns: list of methods with the given method name
+    """
+    import clr
+    from System.Reflection import MethodInfo, BindingFlags
+
+    return [
+        x for x in clr.GetClrType(clz).GetMethods(
+            BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            ) 
+        if x.Name == method_name
+    ]
 
 
 if __name__ == "__main__":
