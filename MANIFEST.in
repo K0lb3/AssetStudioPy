@@ -1,0 +1,3 @@
+include AssetStudioPy/*
+
+recursive-include  AssetStudioPy/AssetStudioUtility *.dll *.lib *.so *.dylib

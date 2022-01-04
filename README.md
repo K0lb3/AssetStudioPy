@@ -1,0 +1,3 @@
+# AssetStudioPy
+
+WIP
