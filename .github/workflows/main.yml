@@ -49,20 +49,16 @@ jobs:
     - name: Test with pytest
       run: |
         pytest -v -s --maxfail=2 tests/test.py
+
+    - name: Build Python distribution
+      if: success() && runner.os != 'Linux' && github.event_name == 'push'
+      run: |
+        python setup.py bdist
     
-    # - name: Test with pytest
-    #   run: |
-    #     pytest -v -s
-      
-    # - name: Build Python wheel
-    #   if: success() && runner.os != 'Linux' && github.event_name == 'push'
-    #   run: |
-    #     python setup.py sdist bdist_wheel
-    
-    # - name: Publish wheels to PyPI
-    #   if: success() && github.event_name == 'push' && env.TWINE_PASSWORD != '' && runner.os != 'Linux' # TODO - remove != Linux once manylinux is fixed
-    #   env:
-    #     TWINE_USERNAME: __token__
-    #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-    #   run: |
-    #     twine upload dist/* --skip-existing
+    - name: Publish wheels to PyPI
+      if: success() && github.event_name == 'push' && env.TWINE_PASSWORD != '' && runner.os != 'Linux' # TODO - remove != Linux once manylinux is fixed
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        twine upload dist/* --skip-existing
