@@ -42,6 +42,10 @@ jobs:
         pip install pytest
         pip install git+https://github.com/pythonnet/pythonnet.git
     
+    - name: Install AssetStudioPy
+      run: |
+        python setup.py install
+
     - name: Test with pytest
       run: |
         pytest tests/test.py
