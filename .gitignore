@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 AssetStudioPy/AssetStudioUtility/
 old/
+test.py
 __pycache__/
 .dump
 .idea/

@@ -5,10 +5,6 @@ LOCAL_PATH = os.path.dirname(os.path.realpath(__file__))
 SAMPLES = os.path.join(LOCAL_PATH, "samples")
 EXTRACTED = os.path.join(LOCAL_PATH, "extracted")
 
-# imports
-# default
-from AssetStudio import AssetsManager, ObjectReader, ClassIDType, TextAsset, Texture2D
-
 # utility
 from PIL import Image
 from tempfile import TemporaryDirectory
@@ -22,13 +18,41 @@ def calc_binary_dif(bin1: bytes, bin2: bytes) -> float:
         return sum(x != y for x, y in zip(bin1, bin2)) / (min(len(bin1), len(bin2)))
 
 
+def test_loading_assets():
+    print("Testing different load functions")
+    am = AssetStudioPy.AssetsManager()
+
+    def check_object_count():
+        obj_count = len(list(am.get_objects()))
+        print(am.assetsFileList.Count, obj_count)
+        assert obj_count == 6684
+        am.Clear()
+
+    print("file via file path")
+    for f in os.listdir(SAMPLES):
+        am.load_file(os.path.join(SAMPLES, f))
+    check_object_count()
+
+    print("folder via file path")
+    am = AssetStudioPy.AssetsManager()
+    am.load_folder(SAMPLES)
+    check_object_count()
+
+    print("file via memory")
+    for fn in os.listdir(SAMPLES):
+        with open(os.path.join(SAMPLES, fn), "rb") as f:
+            am.load_from_memory(f.read(), fn)
+    check_object_count()
+
+
 def test_animator():
     print("test Animator")
     fp = os.path.join(SAMPLES, "data")
 
     fname = "MaintenanceWindow.fbx"
 
-    am = AssetStudioPy.AssetsManager(fp)
+    am = AssetStudioPy.AssetsManager()
+    am.load_file(fp)
     for obj in am.get_objects():
         if obj.m_PathID == 441 and obj.typeName == "Animator":
             ani = obj.toClassType()
@@ -55,7 +79,8 @@ def test_audioclip():
 
     expected_name = "CN_021"
 
-    am = AssetStudioPy.AssetsManager(fp)
+    am = AssetStudioPy.AssetsManager()
+    am.load_file(fp)
     for obj in am.get_objects():
         if obj.m_PathID == -4299652749329800113:
             ac = obj.toClassType()
@@ -89,7 +114,8 @@ def test_textasset():
         "utf8"
     )
 
-    am = AssetStudioPy.AssetsManager(fp)
+    am = AssetStudioPy.AssetsManager()
+    am.load_file(fp)
     for obj in am.get_objects():
         if obj.m_PathID == 412072573404675682:
             ta = obj.toClassType()
@@ -106,7 +132,8 @@ def test_texture2d():
 
     expected_name = "banner_1"
 
-    am = AssetStudioPy.AssetsManager(fp)
+    am = AssetStudioPy.AssetsManager()
+    am.load_file(fp)
     for obj in am.get_objects():
         if obj.m_PathID == -3875358842991402074:
             tex = obj.toClassType()
@@ -119,12 +146,24 @@ def test_texture2d():
         raise LookupError("Couldn't find the Texture2D")
 
 
-# def test_sprite():
-#     for f in os.listdir(SAMPLES):
-#         env = UnityPy.load(os.path.join(SAMPLES, f))
-#         for obj in env.objects:
-#             if obj.type == "Sprite":
-#                 obj.read().image.save("test.png")
+def test_sprite():
+    print("test Sprite")
+    fp = os.path.join(SAMPLES, "sprite")
+
+    expected_name = "banner_1"
+
+    am = AssetStudioPy.AssetsManager()
+    am.load_file(fp)
+    for obj in am.get_objects():
+        if obj.m_PathID == -8325468307350463555:
+            tex = obj.toClassType()
+            assert expected_name == tex.m_Name
+            img = Image.open(os.path.join(EXTRACTED, f"{expected_name}_sprite.png"))
+            live_img = AssetStudioPy.ExportSprite(tex)
+            assert img.tobytes() == live_img.tobytes()
+            break
+    else:
+        raise LookupError("Couldn't find the Texture2D")
 
 
 # def test_mesh():
