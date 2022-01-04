@@ -1,1 +1,3 @@
-__version__ = "0.0.1"
+from ._version import *
+from .AssetsManager import *
+from .export import *

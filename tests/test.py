@@ -1,9 +1,9 @@
 import os
 import AssetStudioPy
 
-ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
-SAMPLES = os.path.join(ROOT_PATH, "tests", "samples")
-EXTRACTED = os.path.join(ROOT_PATH, "tests", "extracted")
+LOCAL_PATH = os.path.dirname(os.path.realpath(__file__))
+SAMPLES = os.path.join(LOCAL_PATH, "samples")
+EXTRACTED = os.path.join(LOCAL_PATH, "extracted")
 
 # imports
 # default
