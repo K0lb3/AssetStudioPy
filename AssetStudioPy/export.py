@@ -28,11 +28,22 @@ from AssetStudio import (
     VideoClip,
     MovieTexture,
     Sprite,
+    SpriteHelper,
 )
 
 # TODO - add extention to paths and some other stuff
 
 from PIL import Image
+
+
+def imagesharp_to_pil(image_cs) -> Image:
+    return Image.frombuffer(
+        "RGBA",
+        (image_cs.Width, image_cs.Height),
+        bytes(ImageExtensions.ConvertToBgra32Bytes(image_cs)),
+        "raw",
+        "BGRA",
+    )
 
 
 def ExportTexture2D(
@@ -60,18 +71,33 @@ def ExportTexture2D(
             # TODO - decide based on extension
             ImageExtensions.WriteToStream(image, fs, ImageFormat.Png)
             fs.Close()
-        ret = Image.frombuffer(
-            "RGBA",
-            (image.Width, image.Height),
-            bytes(ImageExtensions.ConvertToBgra32Bytes(image)),
-            "raw",
-            "BGRA",
-        )
+        ret = imagesharp_to_pil(image)
     else:
         ret = bytearray(m_Texture2D.image_data.GetData())
         if exportPath:
             with open(exportPath, "wb") as f:
                 f.write(ret)
+    return ret
+
+
+def ExportSprite(m_Sprite: Sprite, exportPath: str = None, extension: str = ".png"):
+    # we have to hack a bit to merge the alpha channel into the image
+    rgb_cs = SpriteHelper.GetImage(m_Sprite)
+    ret = imagesharp_to_pil(rgb_cs)
+
+    try:
+        if m_Sprite.m_RD.alphaTexture.m_PathID != 0:
+            # TODO - couldn't find a suiting sprite for now
+            ori_path_id = m_Sprite.m_RD.texture.m_PathID
+            m_Sprite.m_RD.texture.m_PathID = m_Sprite.m_RD.alphaTexture.m_PathID
+            a = imagesharp_to_pil(SpriteHelper.GetImage(m_Sprite))
+            m_Sprite.m_RD.texture.m_PathID = ori_path_id
+            ret.put_alpha(a)
+    except:
+        pass
+
+    if exportPath:
+        ret.save(exportPath)
     return ret
 
 
@@ -109,7 +135,7 @@ def ExportAudioClip(
     return ret
 
 
-def ExportShader(m_Shader: Shader, exportPath: str, extension=".shader") -> str:
+def ExportShader(m_Shader: Shader, exportPath: str = None, extension=".shader") -> str:
     """[summary]
 
     Args:
@@ -127,7 +153,7 @@ def ExportShader(m_Shader: Shader, exportPath: str, extension=".shader") -> str:
 
 
 def ExportTextAsset(
-    m_TextAsset: TextAsset, exportPath: str, extension=".txt"
+    m_TextAsset: TextAsset, exportPath: str = None, extension=".txt"
 ) -> bytearray:
     # if (Settings.restoreExtensionName)
     # {
@@ -144,7 +170,7 @@ def ExportTextAsset(
 
 
 def ExportMonoBehaviour(
-    m_MonoBehaviour: MonoBehaviour, exportPath: str, extension: str = ".json"
+    m_MonoBehaviour: MonoBehaviour, exportPath: str = None, extension: str = ".json"
 ) -> Union[str, bytearray]:
     type = m_MonoBehaviour.ToType()
     if type:
@@ -159,7 +185,7 @@ def ExportMonoBehaviour(
 
 
 def ExportFont(
-    m_Font: Font, exportPath: str, extenions: str = ".ttf"
+    m_Font: Font, exportPath: str = None, extenions: str = ".ttf"
 ) -> Union[bytearray, None]:
     """[summary]
 
@@ -273,7 +299,7 @@ def ExportVideoClip(m_VideoClip: VideoClip, exportPath: str) -> Union[bytearray,
 
 
 def ExportMovieTexture(
-    m_MovieTexture: MovieTexture, exportPath: str, extension: str = ".ogv"
+    m_MovieTexture: MovieTexture, exportPath: str = None, extension: str = ".ogv"
 ) -> Union[bytearray, None]:
     ret = bytearray(m_MovieTexture.m_MovieData)
     if exportPath:
@@ -282,19 +308,14 @@ def ExportMovieTexture(
     return ret
 
 
-def ExportSprite(m_Sprite: Sprite, exportPath: str):
-    # TODO - AssetStudio ignored the alpha channel
-    image = m_Sprite.GetImage()
-
-
-# def ExportRawFile(obj: ObjectReader, exportPath: str, extension: str = ".dat") -> bytearray:
-#     ret = bytearray(obj.GetRawData())
-# {
-#     if (!TryExportFile(exportPath, item, ".dat", out var exportFullPath))
-#         return false;
-#     File.WriteAllBytes(exportFullPath, item.Asset.GetRawData());
-#     return true;
-# }
+def ExportRawFile(
+    obj: ObjectReader, exportPath: str = None, extension: str = ".dat"
+) -> bytearray:
+    ret = bytearray(obj.GetRawData())
+    if exportPath:
+        with open(exportPath, "wb") as f:
+            f.write(ret)
+    return ret
 
 
 def ExportAnimator(
@@ -318,7 +339,7 @@ def ExportAnimator(
 
 def ExportGameObject(
     gameObject: GameObject,
-    exportPath: str,
+    exportPath: str = None,
     animationList: list = None,
     extension: str = ".fbx",
 ):
