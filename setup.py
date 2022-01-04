@@ -74,3 +74,19 @@ setuptools.setup(
         "pythonnet @ https://github.com/pythonnet/pythonnet.git",
     ],
 )
+
+# check if dotnet is installed
+# if not, print a warning
+sdks = os.popen("dotnet --list-sdks").read()
+runtimes = os.popen("dotnet --list-runtimes").read()
+if not ("6.0." in sdks or "6.0." in runtimes):
+    print(
+        """
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Couldn't detect a local .net 6.0 installation.
+AssetStudioPy won't work besides if you use a custom setup.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+"""
+    )
