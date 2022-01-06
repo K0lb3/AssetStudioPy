@@ -48,17 +48,10 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest -v -s --maxfail=2 tests/test.py
+        python tests/test.py
 
-    - name: Build Python distribution
-      if: success() && runner.os != 'Linux' && github.event_name == 'push'
-      run: |
-        python setup.py bdist
-    
-    - name: Publish wheels to PyPI
-      if: success() && github.event_name == 'push' && env.TWINE_PASSWORD != '' && runner.os != 'Linux' # TODO - remove != Linux once manylinux is fixed
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        twine upload dist/* --skip-existing
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.arch }}_CN_021.wav
+        path: ${{github.workspace}}/tests/extracted/CN_021_live.wav

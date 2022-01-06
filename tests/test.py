@@ -88,6 +88,8 @@ def test_audioclip():
             with open(os.path.join(EXTRACTED, f"{expected_name}.wav"), "rb") as f:
                 audio = f.read()
             live_audio = AssetStudioPy.ExportAudioClip(ac)
+            with open(os.path.join(EXTRACTED, f"{expected_name}_live.wav"), "wb") as f:
+                f.write(live_audio)
             print(len(audio))
             print(len(live_audio))
             bin_dif = calc_binary_dif(audio, live_audio)
