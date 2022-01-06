@@ -71,7 +71,7 @@ setuptools.setup(
     ],
     install_requires=[
         "Pillow",
-        "pythonnet @ https://github.com/pythonnet/pythonnet.git",
+        "pythonnet @ git+https://github.com/pythonnet/pythonnet.git"
     ],
 )
 
