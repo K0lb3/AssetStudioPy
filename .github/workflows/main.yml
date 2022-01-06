@@ -17,7 +17,7 @@ jobs:
           "3.7",
         ]
         # only test x64 for now as it supports all features on all platforms
-        architecture: ["x64"]
+        architecture: ["x64","x86","arm64"]
     
     timeout-minutes: 30
 
@@ -53,5 +53,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ matrix.arch }}_CN_021.wav
+        name: ${{ matrix.os }}_${{ matrix.architecture }}_CN_021.wav
         path: ${{github.workspace}}/tests/extracted/CN_021_live.wav
