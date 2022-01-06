@@ -188,4 +188,4 @@ if __name__ == "__main__":
                 locals()[x]()
             except AssertionError:
                 print("assertion failed")
-    input("All Tests Passed")
+    print("All Tests Passed")
