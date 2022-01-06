@@ -34,7 +34,6 @@ def detect_platform():
 
 def update_assetstudio(
     net="net6.0",
-    build="Release",
     release_url="https://api.github.com/repos/K0lb3/AssetStudio/releases/latest",
     fp=None,
 ):
@@ -51,10 +50,10 @@ def update_assetstudio(
     """
     if not fp:
         fp = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "AssetStudioUtilityCross"
+            os.path.dirname(os.path.realpath(__file__)), "AssetStudioUtility"
         )
     system, arch = detect_platform()
-    name = f"AssetStudioUtilityCross-{net}-{system}-{arch}-{build}.zip"
+    name = f"AssetStudioUtility.{net}.{system}.{arch}.zip"
     release = json.loads(urlopen(release_url).read())
     for asset in release.get("assets", []):
         if asset.get("name") == name:
@@ -65,7 +64,7 @@ def update_assetstudio(
                 print(f"Extracting {name}")
                 with ZipFile(zip_stream) as zip:
                     zip.extractall(fp)
-            print("AssetStudioUtilityCross updated!")
+            print("AssetStudioUtility updated!")
             return
     else:
         raise FileNotFoundError(f"No build found for this system ({name})")
