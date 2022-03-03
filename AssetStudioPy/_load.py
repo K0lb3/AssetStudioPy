@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import os
 import sys
 
@@ -59,6 +59,8 @@ def load_assetstudio():
 
 
 RuntimeMethodInfo = None
+
+
 def get_class_method(clz, method_name: str) -> List[RuntimeMethodInfo]:
     """Extracts a method from a class to make it callable public via .Invoke(instance, *args)
     returns: list of methods with the given method name
@@ -67,11 +69,27 @@ def get_class_method(clz, method_name: str) -> List[RuntimeMethodInfo]:
     from System.Reflection import MethodInfo, BindingFlags
 
     return [
-        x for x in clr.GetClrType(clz).GetMethods(
-            BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-            ) 
+        x
+        for x in clr.GetClrType(clz).GetMethods(
+            BindingFlags.Static
+            | BindingFlags.Instance
+            | BindingFlags.Public
+            | BindingFlags.NonPublic
+        )
         if x.Name == method_name
     ]
+
+
+def get_class_fields(clz) -> Dict:
+    import clr
+    from System.Reflection import FieldInfo, BindingFlags
+
+    return {
+        x.Name: x
+        for x in clr.GetClrType(clz).GetFields(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+        )
+    }
 
 
 if __name__ == "__main__":
